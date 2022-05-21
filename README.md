@@ -1,3 +1,7 @@
+After add `zone.js` ,`rxjs` and some `angular` framework js to the chrome dev tools ignore list,
+the `async stack tagging` console trace looks like this.
+![ignore](./screenshots/ignore.png)
+
 - timeout
 
 ![timeout](./screenshots/timeout.png)
