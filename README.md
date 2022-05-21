@@ -1,4 +1,4 @@
-After add `zone.js` ,`rxjs` and some `angular` framework js to the chrome dev tools ignore list,
+To make the stack traces easier to check, added `zone.js` ,`rxjs` and some `angular` framework js to the chrome dev tools ignore list,
 the `async stack tagging` console trace looks like this.
 ![ignore](./screenshots/ignore.png)
 
@@ -14,6 +14,6 @@ the `async stack tagging` console trace looks like this.
 
 ![click](./screenshots/click.png)
 
-- Http Request
+- Nested async call
 
-![http](./screenshots/xhr.png)
+![http](./screenshots/nested.png)

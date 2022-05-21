@@ -10,6 +10,7 @@ if (environment.production) {
 }
 
 const AsyncStackTaggingZoneSpec = (Zone as any)['AsyncStackTaggingZoneSpec'];
+(Error as any).stackTraceLimit = Infinity;
 Zone.current
   .fork(new AsyncStackTaggingZoneSpec('testAsyncStackTagging'))
   .run(() => {

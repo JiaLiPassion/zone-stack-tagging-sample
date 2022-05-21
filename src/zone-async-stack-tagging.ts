@@ -42,7 +42,11 @@ class AsyncStackTaggingZoneSpec implements ZoneSpec {
   ) {
     task.id && console.startAsyncTask && console.startAsyncTask(task.id);
     const r = delegate.invokeTask(targetZone, task, applyThis, applyArgs);
-    if (task.type !== 'eventTask') {
+    if (
+      task.type !== 'eventTask' &&
+      task.type === 'macroTask' &&
+      !task.data?.isPeriodic
+    ) {
       task.id && console.finishAsyncTask && console.finishAsyncTask(task.id);
     }
     return r;
