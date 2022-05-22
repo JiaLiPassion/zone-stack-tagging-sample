@@ -14,6 +14,10 @@ the `async stack tagging` console trace looks like this.
 
 ![click](./screenshots/click.png)
 
+- http
+
+![http](./screenshots/xhr.png)
+
 - Nested async call
 
 ![http](./screenshots/nested.png)

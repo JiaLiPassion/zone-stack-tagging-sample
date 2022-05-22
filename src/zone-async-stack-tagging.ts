@@ -11,6 +11,7 @@ interface Task {
 
 class AsyncStackTaggingZoneSpec implements ZoneSpec {
   runZone = Zone.current;
+  xhrStacks: Task[] = [];
 
   constructor(namePrefix: string) {
     this.name = 'asyncStackTagging for ' + namePrefix;
@@ -26,9 +27,15 @@ class AsyncStackTaggingZoneSpec implements ZoneSpec {
     target: Zone,
     task: Task
   ): Task {
+    if (task.source === 'XMLHttpRequest.addEventListener:load') {
+      return delegate.scheduleTask(target, task);
+    }
     task.id =
       console.scheduleAsyncTask &&
       console.scheduleAsyncTask(task.source || task.type);
+    if (task.source === 'XMLHttpRequest.send') {
+      this.xhrStacks.push(task);
+    }
     return delegate.scheduleTask(target, task);
   }
 
@@ -40,14 +47,36 @@ class AsyncStackTaggingZoneSpec implements ZoneSpec {
     applyThis: any,
     applyArgs?: any[]
   ) {
-    task.id && console.startAsyncTask && console.startAsyncTask(task.id);
+    let asyncTaggingTask = task;
+    if (task.source === 'XMLHttpRequest.send') {
+      return delegate.invokeTask(targetZone, task, applyThis, applyArgs);
+    }
+    if (task.source === 'XMLHttpRequest.addEventListener:load') {
+      const target = (task as any).target;
+      for (let i = 0; i < this.xhrStacks.length; i++) {
+        const xhrTask = this.xhrStacks[i];
+        const xhr = (xhrTask.data as any)?.target;
+        if (target === xhr) {
+          this.xhrStacks.splice(i, 1);
+          asyncTaggingTask = xhrTask;
+          break;
+        }
+      }
+    }
+    asyncTaggingTask.id &&
+      console.startAsyncTask &&
+      console.startAsyncTask(asyncTaggingTask.id);
+
     const r = delegate.invokeTask(targetZone, task, applyThis, applyArgs);
+
     if (
       task.type !== 'eventTask' &&
       task.type === 'macroTask' &&
       !task.data?.isPeriodic
     ) {
-      task.id && console.finishAsyncTask && console.finishAsyncTask(task.id);
+      asyncTaggingTask.id &&
+        console.finishAsyncTask &&
+        console.finishAsyncTask(asyncTaggingTask.id);
     }
     return r;
   }
